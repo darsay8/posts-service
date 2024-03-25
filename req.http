@@ -1,0 +1,35 @@
+
+@url = http://localhost:8090 
+
+#Get Posts
+GET {{url}}/posts
+
+###
+
+#Get Post Comments
+GET {{url}}/posts/1/comments
+
+###
+
+#Get Post Likes
+GET {{url}}/posts/1/likes
+
+###
+
+#Get Post Likes Total
+GET {{url}}/posts/1/likes/total
+
+###
+
+#Get Post Scores
+GET {{url}}/posts/2/scores
+
+###
+
+#Get Post Score Avg
+GET {{url}}/posts/1/scores/avg
+
+###
+
+#Not Found
+GET {{url}}/not/found
