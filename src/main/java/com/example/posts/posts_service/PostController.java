@@ -47,8 +47,62 @@ public class PostController {
         "public",
         "http://example.com/post/2", List.of(score3, score4));
 
+    Post post3 = new Post(3, user3, "This is yet another post",
+        List.of("http://example.com/image3.jpg"),
+        "2023-05-15T12:00:00Z",
+        List.of(like, like2, like3, like4), List.of(comment, comment2), 0,
+        List.of("tag1", "tag2"), "Location",
+        "public",
+        "http://example.com/post/3", List.of(score2, score4));
+
+    Post post4 = new Post(4, user4, "One more post",
+        List.of("http://example.com/image4.jpg"),
+        "2022-10-10T12:00:00Z",
+        List.of(like, like2, like3, like4), List.of(comment, comment2), 0,
+        List.of("tag1", "tag2"), "Location",
+        "public",
+        "http://example.com/post/4", List.of(score, score3));
+
+    Post post5 = new Post(5, user1, "Another post by user1",
+        List.of("http://example.com/image5.jpg"),
+        "2023-07-20T12:00:00Z",
+        List.of(like, like2, like3), List.of(comment, comment2), 0,
+        List.of("tag1", "tag2"), "Location",
+        "public",
+        "http://example.com/post/5", List.of(score2, score));
+
+    Post post6 = new Post(6, user2, "User2's latest post",
+        List.of("http://example.com/image6.jpg"),
+        "2024-02-28T12:00:00Z",
+        List.of(like, like2), List.of(comment), 0,
+        List.of("tag1", "tag2"), "Location",
+        "public",
+        "http://example.com/post/6", List.of(score, score4));
+
+    Post post7 = new Post(7, user3, "A new post from user3",
+        List.of("http://example.com/image7.jpg"),
+        "2022-11-05T12:00:00Z",
+        List.of(like, like2, like3, like4), List.of(comment, comment2), 0,
+        List.of("tag1", "tag2"), "Location",
+        "public",
+        "http://example.com/post/7", List.of(score2, score));
+
+    Post post8 = new Post(8, user4, "A post by user4",
+        List.of("http://example.com/image8.jpg"),
+        "2023-04-15T12:00:00Z",
+        List.of(like), List.of(comment), 0,
+        List.of("tag1", "tag2"), "Location",
+        "public",
+        "http://example.com/post/8", List.of(score3, score));
+
     posts.add(post);
     posts.add(post2);
+    posts.add(post3);
+    posts.add(post4);
+    posts.add(post5);
+    posts.add(post6);
+    posts.add(post7);
+    posts.add(post8);
 
   }
 
