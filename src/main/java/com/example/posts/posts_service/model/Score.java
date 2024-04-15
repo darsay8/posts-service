@@ -2,7 +2,6 @@ package com.example.posts.posts_service.model;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +22,7 @@ public class Score {
   private Long id;
 
   @Column(name = "score")
-  private double score;
+  private double value;
 
   @Column(name = "timestamp")
   private LocalDateTime timestamp;
@@ -32,7 +31,7 @@ public class Score {
   @JoinColumn(name = "id_author")
   private Author author;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
   @JoinColumn(name = "id_post")
   private Post post;
 
