@@ -201,4 +201,18 @@ public class PostServiceImpl implements PostService {
     return authorRepository.save(author);
   }
 
+  @Override
+  public Double getAverageScore(Long id) {
+    Post post = postRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + id));
+
+    List<Score> scores = post.getScores();
+
+    if (scores.isEmpty()) {
+      return 0.0;
+    }
+
+    double sum = scores.stream().mapToDouble(Score::getValue).sum();
+    return sum / scores.size();
+  }
 }

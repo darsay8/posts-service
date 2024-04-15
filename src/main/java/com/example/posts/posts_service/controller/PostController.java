@@ -118,6 +118,13 @@ public class PostController {
     return ResponseEntity.status(HttpStatus.CREATED).body(createdAuthor);
   }
 
+  @GetMapping("/posts/{id}/scores/avg")
+  public ResponseEntity<Double> getAverageScore(@PathVariable Long id) {
+    logger.info("Getting average score for post with id {}.", id);
+    Double averageScore = postService.getAverageScore(id);
+    return ResponseEntity.ok(averageScore);
+  }
+
   @GetMapping("/**")
   public ResponseEntity<Void> handleInvalidPath() {
     System.out.println("Not found");

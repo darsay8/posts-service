@@ -97,6 +97,31 @@ DELETE {{url}}/posts/1
 
 ###
 
+### Add Score to Post ###
+######################################################
+
+POST {{url}}/posts/1/scores
+Content-Type: application/json
+
+{
+  "timestamp": "2024-04-12T22:07:19.750192",
+  "author": {
+    "id": 1,
+    "username": "James",
+    "profilePictureUrl": "https://avatarfiles.alphacoders.com/793/79317.png"
+  },
+  "value": 9.5
+}
+
+###
+
+### Get Average Score from Post ###
+######################################################
+
+GET {{url}}/posts/1/scores/avg
+
+###
+
 ### Not Found ###
 ######################################################
 

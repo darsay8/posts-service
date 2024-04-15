@@ -33,4 +33,6 @@ public interface PostService {
 
   List<Author> getUsers();
 
+  Double getAverageScore(Long id);
+
 }
