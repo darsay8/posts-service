@@ -37,16 +37,29 @@ public class PostServiceImpl implements PostService {
 
   @Override
   public List<Author> getUsers() {
+
+    if (authorRepository.findAll().isEmpty()) {
+      throw new IllegalStateException("No users found");
+    }
     return authorRepository.findAll();
   }
 
   @Override
   public List<Post> getPosts() {
+
+    if (postRepository.findAll().isEmpty()) {
+      throw new IllegalStateException("No posts found");
+    }
     return postRepository.findAll();
   }
 
   @Override
   public Optional<Post> getPostById(Long id) {
+
+    if (!postRepository.existsById(id)) {
+      throw new IllegalArgumentException("Post not found with ID: " + id);
+    }
+
     return postRepository.findById(id);
   }
 

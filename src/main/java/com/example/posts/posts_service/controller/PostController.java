@@ -3,6 +3,9 @@ package com.example.posts.posts_service.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.example.posts.posts_service.model.Author;
 import com.example.posts.posts_service.model.Comment;
@@ -11,77 +14,108 @@ import com.example.posts.posts_service.model.Post;
 import com.example.posts.posts_service.model.Score;
 import com.example.posts.posts_service.service.PostService;
 
-import org.springframework.web.bind.annotation.PostMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api")
 public class PostController {
+
+  private static final Logger logger = LoggerFactory.getLogger(PostController.class);
 
   @Autowired
   private PostService postService;
 
   @GetMapping("/users")
   public ResponseEntity<List<Author>> getAllAuthors() {
-    return postService.getUsers().isEmpty() ? ResponseEntity.noContent().build()
-        : ResponseEntity.ok(postService.getUsers());
+    List<Author> authors = postService.getUsers();
+    if (authors.isEmpty()) {
+      logger.info("No authors found.");
+      return ResponseEntity.noContent().build();
+    } else {
+      logger.info("Returning {} authors.", authors.size());
+      return ResponseEntity.ok(authors);
+    }
   }
 
   @GetMapping("/posts")
   public ResponseEntity<List<Post>> getAllPosts() {
-    return postService.getPosts().isEmpty() ? ResponseEntity.noContent().build()
-        : ResponseEntity.ok(postService.getPosts());
+    List<Post> posts = postService.getPosts();
+    if (posts.isEmpty()) {
+      logger.info("No posts found.");
+      return ResponseEntity.noContent().build();
+    } else {
+      logger.info("Returning {} posts.", posts.size());
+      return ResponseEntity.ok(posts);
+    }
   }
 
   @GetMapping("/posts/{id}")
   public ResponseEntity<Post> getPostById(@PathVariable Long id) {
-    return postService.getPostById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    return postService.getPostById(id)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> {
+          logger.warn("Post with id {} not found.", id);
+          return ResponseEntity.notFound().build();
+        });
   }
 
   @PostMapping("/posts")
-  public Post createPost(@RequestBody Post post) {
-    return postService.createPost(post);
+  public ResponseEntity<Post> createPost(@RequestBody Post post) {
+    logger.info("Creating a new post.");
+    Post createdPost = postService.createPost(post);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
   }
 
   @PutMapping("/posts/{id}")
-  public Post putMethodName(@PathVariable Long id, @RequestBody Post post) {
-    return postService.updatePost(id, post);
+  public ResponseEntity<Post> updatePost(@PathVariable Long id, @RequestBody Post post) {
+    logger.info("Updating post with id {}.", id);
+    Post updatedPost = postService.updatePost(id, post);
+    return ResponseEntity.ok(updatedPost);
   }
 
   @DeleteMapping("/posts/{id}")
-  public void deletePost(@PathVariable Long id) {
+  public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+    logger.info("Deleting post with id {}.", id);
     postService.deletePost(id);
+    return ResponseEntity.noContent().build();
   }
 
-  // Add Comments to Post
   @PostMapping("/posts/{id}/comments")
-  public Comment createComment(@PathVariable Long id, @RequestBody Comment comment) {
-    return postService.addCommentToPost(id, comment);
+  public ResponseEntity<Comment> createComment(@PathVariable Long id, @RequestBody Comment comment) {
+    logger.info("Creating a new comment for post with id {}.", id);
+    Comment createdComment = postService.addCommentToPost(id, comment);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
   }
 
-  // Add Likes to Post
   @PostMapping("/posts/{id}/likes")
-  public Like createLike(@PathVariable Long id, @RequestBody Like like) {
-    return postService.addLikeToPost(id, like);
+  public ResponseEntity<Like> createLike(@PathVariable Long id, @RequestBody Like like) {
+    logger.info("Creating a new like for post with id {}.", id);
+    Like createdLike = postService.addLikeToPost(id, like);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdLike);
   }
 
-  // Add Score to Post
   @PostMapping("/posts/{id}/scores")
-  public Score createScore(@PathVariable Long id, @RequestBody Score score) {
-    return postService.addScoreToPost(id, score);
+  public ResponseEntity<Score> createScore(@PathVariable Long id, @RequestBody Score score) {
+    logger.info("Creating a new score for post with id {}.", id);
+    Score createdScore = postService.addScoreToPost(id, score);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdScore);
   }
 
-  // Add Tags to Post
-  @PatchMapping("/posts/{postId}/tags")
-  public List<String> addTagsToPost(@PathVariable Long postId, @RequestBody List<String> tags) {
-    return postService.addTagsToPost(postId, tags);
+  @PatchMapping("/posts/{id}/tags")
+  public ResponseEntity<List<String>> addTagsToPost(@PathVariable Long id, @RequestBody List<String> tags) {
+    logger.info("Adding tags to post with id {}.", id);
+    List<String> updatedTags = postService.addTagsToPost(id, tags);
+    return ResponseEntity.ok(updatedTags);
   }
 
   @PostMapping("/users")
-  public Author createAuthor(@RequestBody Author author) {
-    return postService.createAuthor(author);
+  public ResponseEntity<Author> createAuthor(@RequestBody Author author) {
+    logger.info("Creating a new author.");
+    Author createdAuthor = postService.createAuthor(author);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdAuthor);
   }
 
   @GetMapping("/**")
