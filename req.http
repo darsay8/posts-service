@@ -1,35 +1,103 @@
 
-@url = http://localhost:8090 
+@url = http://localhost:8090/api
 
-#Get Posts
+
+### Get Users ###
+######################################################
+
+GET {{url}}/users
+
+###
+
+### Get Posts ###
+######################################################
+
 GET {{url}}/posts
 
 ###
 
-#Get Post Comments
-GET {{url}}/posts/1/comments
+### Get Posts by Id ###
+######################################################
+
+GET {{url}}/posts/1
 
 ###
 
-#Get Post Likes
-GET {{url}}/posts/1/likes
+### Create Author ###
+######################################################
+
+POST {{url}}/users
+Content-Type: application/json
+
+{
+  "username": "James",
+  "profilePictureUrl": "https://image.png"
+},
 
 ###
 
-#Get Post Likes Total
-GET {{url}}/posts/1/likes/total
+### Create Post ###
+######################################################
+
+POST {{url}}/posts
+Content-Type: application/json
+
+{
+    "author": {
+      "id": 1,
+      "username": "James",
+      "profilePictureUrl": "https://image.png"
+    },
+    "content": "First post content",
+    "timestamp": "2024-04-12T22:07:19.750192",
+    "likes": [],
+    "comments": [],
+    "scores": [],
+    "shares": 0,
+    "media": [],
+    "tags": [],
+    "location": null,
+    "privacy": null,
+    "url": null
+  },
 
 ###
 
-#Get Post Scores
-GET {{url}}/posts/2/scores
+### Update Post ###
+######################################################
+
+PUT {{url}}/posts/1
+Content-Type: application/json
+
+{
+    "author": {
+      " id": 1,
+      "username": "James",
+      "profilePictureUrl": "https://image.png"
+    },
+    "content": "First post content updated",
+    "timestamp": "2024-04-12T22:07:19.750192",
+    "likes": [],
+     "comments": [],
+    "scores": [],
+    "shares": 0,
+    "media": [],
+    "tags": [],
+    "location": null,
+    "privacy": null,
+    "url": null
+  },
 
 ###
 
-#Get Post Score Avg
-GET {{url}}/posts/1/scores/avg
+### Delete Post ###
+######################################################
+
+DELETE {{url}}/posts/1
 
 ###
 
-#Not Found
+### Not Found ###
+######################################################
+
 GET {{url}}/not/found
