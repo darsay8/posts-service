@@ -36,6 +36,11 @@ public class PostServiceImpl implements PostService {
   private ScoreRepository scoreRepository;
 
   @Override
+  public List<Author> getUsers() {
+    return authorRepository.findAll();
+  }
+
+  @Override
   public List<Post> getPosts() {
     return postRepository.findAll();
   }
@@ -63,7 +68,6 @@ public class PostServiceImpl implements PostService {
     } else {
       throw new IllegalArgumentException("Author not found");
     }
-
   }
 
   @Override
@@ -170,6 +174,18 @@ public class PostServiceImpl implements PostService {
     postRepository.save(post);
 
     return post.getTags();
+  }
+
+  @Override
+  public Author createAuthor(Author author) {
+    if (author == null) {
+      throw new IllegalArgumentException("Author object cannot be null");
+    }
+    if (author.getUsername() == null || author.getUsername().isEmpty()) {
+      throw new IllegalArgumentException("Author name cannot be empty");
+    }
+
+    return authorRepository.save(author);
   }
 
 }
