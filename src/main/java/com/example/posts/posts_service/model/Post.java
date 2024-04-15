@@ -35,13 +35,13 @@ public class Post {
   @Column(name = "timestamp")
   private LocalDateTime timestamp;
 
-  @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<Like> likes;
 
-  @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<Comment> comments;
 
-  @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
   private List<Score> scores;
 
   @Column(name = "shares")
