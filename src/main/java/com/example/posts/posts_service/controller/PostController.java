@@ -127,7 +127,7 @@ public class PostController {
 
   @GetMapping("/**")
   public ResponseEntity<Void> handleInvalidPath() {
-    System.out.println("Not found");
+    logger.error("Not found");
     return ResponseEntity.notFound().build();
   }
 
