@@ -1,5 +1,6 @@
 package com.example.posts.posts_service.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,6 +78,7 @@ public class PostServiceImpl implements PostService {
 
     if (optionalAuthor.isPresent()) {
       post.setAuthor(optionalAuthor.get());
+      post.setTimestamp(LocalDateTime.now());
       return postRepository.save(post);
     } else {
       throw new IllegalArgumentException("Author not found");
@@ -97,6 +99,7 @@ public class PostServiceImpl implements PostService {
     if (optionalExistingPost.isPresent()) {
       Post existingPost = optionalExistingPost.get();
       existingPost.setContent(post.getContent());
+      existingPost.setTimestamp(LocalDateTime.now());
       return postRepository.save(existingPost);
     } else {
       throw new IllegalArgumentException("Post not found with ID: " + id);
