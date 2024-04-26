@@ -49,9 +49,11 @@ public class PostControllerTest {
 
     mockMvc.perform(MockMvcRequestBuilders.get("/api/posts"))
         .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].content", Matchers.is("Test Post Content")))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].content", Matchers.is("Test Post Content 2")));
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.aMapWithSize(2)))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$._embedded.postList[0].content", Matchers.is("Test Post Content")))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$._embedded.postList[1].content", Matchers.is("Test Post Content 2")));
   }
 
   @Test

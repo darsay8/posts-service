@@ -3,6 +3,8 @@ package com.example.posts.posts_service.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -41,11 +43,12 @@ public class PostRepositoryTest {
   @Test
   public void testPostRepositoryDelete() {
     Post post = new Post();
-
     Post savedPost = postRepository.save(post);
-    postRepository.deleteById(savedPost.getId());
+    Long postId = savedPost.getId();
 
-    assertEquals(0, postRepository.count());
+    postRepository.deleteById(postId);
+
+    assertFalse(postRepository.existsById(postId));
   }
 
 }
