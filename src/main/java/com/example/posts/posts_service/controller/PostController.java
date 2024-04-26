@@ -1,11 +1,13 @@
 package com.example.posts.posts_service.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import com.example.posts.posts_service.model.Author;
 import com.example.posts.posts_service.model.Comment;
@@ -17,7 +19,11 @@ import com.example.posts.posts_service.service.PostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -29,51 +35,82 @@ public class PostController {
   private PostService postService;
 
   @GetMapping("/users")
-  public ResponseEntity<List<Author>> getAllAuthors() {
+  public CollectionModel<EntityModel<Author>> getAllAuthors() {
     List<Author> authors = postService.getUsers();
+
     if (authors.isEmpty()) {
       logger.info("No authors found.");
-      return ResponseEntity.noContent().build();
+      return CollectionModel.empty();
     } else {
       logger.info("Returning {} authors.", authors.size());
-      return ResponseEntity.ok(authors);
+
+      List<EntityModel<Author>> authorResources = authors.stream()
+          .map(author -> EntityModel.of(author))
+          .collect(Collectors.toList());
+
+      CollectionModel<EntityModel<Author>> resources = CollectionModel.of(authorResources);
+
+      return resources;
     }
   }
 
   @GetMapping("/posts")
-  public ResponseEntity<List<Post>> getAllPosts() {
+  public CollectionModel<EntityModel<Post>> getAllPosts() {
     List<Post> posts = postService.getPosts();
+
     if (posts.isEmpty()) {
       logger.info("No posts found.");
-      return ResponseEntity.noContent().build();
+      return CollectionModel.empty();
     } else {
       logger.info("Returning {} posts.", posts.size());
-      return ResponseEntity.ok(posts);
+
+      List<EntityModel<Post>> postResources = posts.stream()
+          .map(post -> EntityModel.of(post, WebMvcLinkBuilder
+              .linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(post.getId())).withSelfRel()))
+          .collect(Collectors.toList());
+
+      CollectionModel<EntityModel<Post>> resources = CollectionModel.of(postResources,
+          WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(PostController.class).getAllPosts()).withSelfRel());
+
+      return resources;
     }
   }
 
   @GetMapping("/posts/{id}")
-  public ResponseEntity<Post> getPostById(@PathVariable Long id) {
-    return postService.getPostById(id)
-        .map(ResponseEntity::ok)
-        .orElseGet(() -> {
-          logger.warn("Post with id {} not found.", id);
-          return ResponseEntity.notFound().build();
-        });
+  public EntityModel<Post> getPostById(@PathVariable Long id) {
+    Optional<Post> post = postService.getPostById(id);
+
+    if (post.isPresent()) {
+      logger.info("Returning post with id {}.", id);
+      EntityModel<Post> postEntityModel = EntityModel.of(post.get(),
+          WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(id)).withSelfRel(),
+          WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllPosts()).withRel("posts"));
+      return postEntityModel;
+    } else {
+      logger.warn("Post with id {} not found.", id);
+      throw new PostNotFoundException("Post with id " + id + " not found");
+    }
   }
 
   @PostMapping("/posts")
-  public ResponseEntity<Post> createPost(@RequestBody Post post) {
+  public EntityModel<Post> createPost(@RequestBody Post post) {
     logger.info("Creating a new post.");
     Post createdPost = postService.createPost(post);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+    EntityModel<Post> postEntityModel = EntityModel.of(createdPost,
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(createdPost.getId()))
+            .withSelfRel(),
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllPosts()).withRel("posts"));
+    return postEntityModel;
   }
 
   @PutMapping("/posts/{id}")
-  public ResponseEntity<Post> updatePost(@PathVariable Long id, @RequestBody Post post) {
+  public EntityModel<Post> updatePost(@PathVariable Long id, @RequestBody Post post) {
     logger.info("Updating post with id {}.", id);
     Post updatedPost = postService.updatePost(id, post);
-    return ResponseEntity.ok(updatedPost);
+    EntityModel<Post> postEntityModel = EntityModel.of(updatedPost,
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(id)).withSelfRel(),
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllPosts()).withRel("posts"));
+    return postEntityModel;
   }
 
   @DeleteMapping("/posts/{id}")
@@ -84,45 +121,63 @@ public class PostController {
   }
 
   @PostMapping("/posts/{id}/comments")
-  public ResponseEntity<Comment> createComment(@PathVariable Long id, @RequestBody Comment comment) {
+  public EntityModel<Comment> createComment(@PathVariable Long id, @RequestBody Comment comment) {
     logger.info("Creating a new comment for post with id {}.", id);
     Comment createdComment = postService.addCommentToPost(id, comment);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
+    EntityModel<Comment> commentEntityModel = EntityModel.of(createdComment,
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(id)).withRel("post"));
+    return commentEntityModel;
   }
 
   @PostMapping("/posts/{id}/likes")
-  public ResponseEntity<Like> createLike(@PathVariable Long id, @RequestBody Like like) {
+  public EntityModel<Like> createLike(@PathVariable Long id, @RequestBody Like like) {
     logger.info("Creating a new like for post with id {}.", id);
     Like createdLike = postService.addLikeToPost(id, like);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdLike);
+    EntityModel<Like> likeEntityModel = EntityModel.of(createdLike,
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(id)).withRel("post"));
+    return likeEntityModel;
   }
 
   @PostMapping("/posts/{id}/scores")
-  public ResponseEntity<Score> createScore(@PathVariable Long id, @RequestBody Score score) {
+  public EntityModel<Score> createScore(@PathVariable Long id, @RequestBody Score score) {
     logger.info("Creating a new score for post with id {}.", id);
     Score createdScore = postService.addScoreToPost(id, score);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdScore);
+    EntityModel<Score> scoreEntityModel = EntityModel.of(createdScore,
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(id)).withRel("post"));
+    return scoreEntityModel;
   }
 
   @PatchMapping("/posts/{id}/tags")
-  public ResponseEntity<List<String>> addTagsToPost(@PathVariable Long id, @RequestBody List<String> tags) {
+  public EntityModel<List<String>> addTagsToPost(@PathVariable Long id, @RequestBody List<String> tags) {
     logger.info("Adding tags to post with id {}.", id);
     List<String> updatedTags = postService.addTagsToPost(id, tags);
-    return ResponseEntity.ok(updatedTags);
+
+    EntityModel<List<String>> tagsEntityModel = EntityModel.of(updatedTags,
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(id)).withRel("post"));
+
+    return tagsEntityModel;
   }
 
   @PostMapping("/users")
-  public ResponseEntity<Author> createAuthor(@RequestBody Author author) {
-    logger.info("Creating a new author.");
+  public EntityModel<Author> createUser(@RequestBody Author author) {
+    logger.info("Creating a new user.");
     Author createdAuthor = postService.createAuthor(author);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdAuthor);
+
+    return EntityModel.of(createdAuthor, WebMvcLinkBuilder
+        .linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllAuthors()).withRel("authors"));
+
   }
 
   @GetMapping("/posts/{id}/scores/avg")
-  public ResponseEntity<Double> getAverageScore(@PathVariable Long id) {
+  public EntityModel<Map<String, Double>> getAverageScore(@PathVariable Long id) {
     logger.info("Getting average score for post with id {}.", id);
     Double averageScore = postService.getAverageScore(id);
-    return ResponseEntity.ok(averageScore);
+
+    Map<String, Double> scoreMap = new HashMap<>();
+    scoreMap.put("averageScore", averageScore);
+
+    return EntityModel.of(scoreMap,
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(id)).withRel("post"));
   }
 
   @GetMapping("/**")
