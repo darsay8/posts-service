@@ -102,4 +102,29 @@ public class PostServiceTest {
 
     verify(postRepository, times(1)).deleteById(savedPost.getId());
   }
+
+  @Test
+  public void testGetPostById() throws Exception {
+    Author author = new Author();
+    author.setUsername("Test User");
+
+    when(authorRepository.findById(author.getId())).thenReturn(Optional.of(author));
+
+    Post post = new Post();
+    post.setContent("Test Post Content");
+    post.setAuthor(author);
+
+    when(postRepository.save(any(Post.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    Post savedPost = postService.createPost(post);
+
+    when(postRepository.existsById(savedPost.getId())).thenReturn(true);
+    when(postRepository.findById(savedPost.getId())).thenReturn(Optional.of(savedPost));
+
+    Optional<Post> actualPost = postService.getPostById(savedPost.getId());
+
+    assertEquals(savedPost, actualPost.get());
+    assertEquals("Test Post Content", actualPost.get().getContent());
+  }
+
 }

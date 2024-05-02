@@ -31,6 +31,18 @@ public class PostRepositoryTest {
   }
 
   @Test
+  public void testPostRepositoryFindAll() {
+    Post post = new Post();
+    post.setContent("Test Post Content");
+
+    postRepository.save(post);
+
+    Iterable<Post> posts = postRepository.findAll();
+
+    assertNotNull(posts);
+  }
+
+  @Test
   public void testPostRepositoryFindById() {
     Post post = new Post();
 

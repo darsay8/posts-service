@@ -1,15 +1,19 @@
 package com.example.posts.posts_service.controller;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -17,6 +21,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.example.posts.posts_service.model.Author;
 import com.example.posts.posts_service.model.Post;
 import com.example.posts.posts_service.service.PostService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(PostController.class)
 public class PostControllerTest {
@@ -26,6 +31,13 @@ public class PostControllerTest {
 
   @MockBean
   private PostService postServiceMock;
+
+  ObjectMapper objectMapper = new ObjectMapper();
+
+  @BeforeEach
+  public void setup() {
+    this.objectMapper = new ObjectMapper();
+  }
 
   @Test
   public void testGetAllPosts() throws Exception {
@@ -67,6 +79,25 @@ public class PostControllerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/1"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.is("Test Post Content")));
+  }
+
+  @Test
+  public void testCreatePost() throws Exception {
+
+    Post post = new Post();
+    post.setContent("Test Post Content");
+
+    when(postServiceMock.createPost(post)).thenReturn(post);
+
+    mockMvc.perform(
+        MockMvcRequestBuilders.post("/api/posts")
+            .content(objectMapper.writeValueAsString(post))
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.is("Test Post Content")));
+
+    verify(postServiceMock, times(1)).createPost(post);
+
   }
 
   @Test
