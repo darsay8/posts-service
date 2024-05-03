@@ -35,3 +35,7 @@ build/
 
 ### Wallet ###
 /Wallet_HBT3HDZJKDOL5NT1
+
+
+### Environment ###
+.env
